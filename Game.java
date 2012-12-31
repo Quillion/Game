@@ -16,6 +16,7 @@ public class Game
 {
     private static int ROLL = 0;
     private static int MOVE = 1;
+    private static int CHOICE = 2;
 
     private int WIDTH, HEIGHT;
 
@@ -25,8 +26,11 @@ public class Game
     private int current_player;
     private int timer;
     private int dice;
+    private int choice;
 
     private int step;
+
+    private int temp;
 
     public Game(int WIDTH, int HEIGHT)
     {
@@ -144,7 +148,9 @@ public class Game
         current_player = 0;
         timer = 0;
         dice = 0;
+        choice = 0;
         step = ROLL;
+        temp = 0;
     }
 
     public void draw(Graphics2D g)
@@ -157,25 +163,98 @@ public class Game
         for(int i = 0; i < pieces.size(); i++)
             board.draw(g, pieces.get(i), i);
 
-        board.drawDice(g, 6);
+        board.drawDice(g, dice);
+
+        temp = 0;
+        for(int i = 0; i < pieces.get(current_player).getField().getFieldSize(); i++)
+        {
+            if(pieces.get(current_player).getField().getField(i).getId() != pieces.get(current_player).getLastId())
+            {
+                temp++;
+                g.setColor(Color.YELLOW);
+                g.drawString(temp+") "+pieces.get(current_player).getField().getField(i).getId(), 550, 350 + temp*10);
+            }
+        }
     }
 
     public void update()
     {
-        //if(roll)
+        if(step == MOVE)
+        {
+            if(pieces.get(current_player).getField().getFieldSize() > 2 || pieces.get(current_player).getLastId() == -1)
+            {
+                if(choice != 0)
+                {
+                    for(int i = 0; i < pieces.get(current_player).getField().getFieldSize(); i++)
+                    {
+                        if(pieces.get(current_player).getField().getField(i).getId() == pieces.get(current_player).getLastId())
+                        {
+                            choice++;
+                        }
+                        if(choice == (i+1))
+                        {
+                            pieces.get(current_player).setField(pieces.get(current_player).getField().getField(i));
+                            dice--;
+                            if(dice == 0)
+                            {
+                                step = ROLL;
+                                current_player++;
+                                if(current_player > 3)
+                                    current_player = 0;
+                            }
+                            break;
+                        }
+                    }
+                    choice = 0;
+                }
+                else
+                    step = CHOICE;
+            }
+            else
+            {
+                if(timer < 50)
+                    timer++;
+                else
+                {
+                    timer = 0;
+                    for(int i = 0; i < pieces.get(current_player).getField().getFieldSize(); i++)
+                    {
+                        if(pieces.get(current_player).getField().getField(i).getId() != pieces.get(current_player).getLastId())
+                        {
+                            pieces.get(current_player).setField(pieces.get(current_player).getField().getField(i));
+                            dice--;
+                            if(dice == 0)
+                            {
+                                step = ROLL;
+                                current_player++;
+                                if(current_player > 3)
+                                    current_player = 0;
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public void keyPressed(KeyEvent e)
     {
-        if(e.getKeyCode() == KeyEvent.VK_SPACE)
+        if(step == ROLL)
         {
-            if(step == ROLL)
+            if(e.getKeyCode() == KeyEvent.VK_SPACE)
             {
                 step = MOVE;
                 dice = board.roll();
             }
-            else if (step == MOVE)
+        }
+        if(step == CHOICE)
+        {
+            int number = e.getKeyCode();
+            if(number >= KeyEvent.VK_1 && number <= KeyEvent.VK_4)
             {
+                choice = number - KeyEvent.VK_0;
+                step = MOVE;
             }
         }
     }
