@@ -1,12 +1,16 @@
+import java.awt.Color;
+
 public class Piece
 {
     private int last_id;
     private Field field;
+    private Color color;
 
     public Piece()
     {
         field = null;
         this.last_id = -1;
+        color = Color.black;
     }
 
     public void setLastId(int id)
@@ -29,5 +33,15 @@ public class Piece
     public Field getField()
     {
         return this.field;
+    }
+
+    public void setColor(Color color)
+    {
+        this.color = color;
+    }
+
+    public Color getColor()
+    {
+        return this.color;
     }
 }
