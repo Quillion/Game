@@ -5,9 +5,16 @@ import java.util.ArrayList;
 
 public class Field
 {
+    public static int BANK = 0;
+    public static int SHOP = 1;
+    public static int EVENT = 2;
+    public static int VISIT = 3;
+
     private List<Field> fields;
     private int id;
     private int x, y;
+    private int type;
+    private int price;
 
     public Field()
     {
@@ -15,6 +22,8 @@ public class Field
         this.id = 0;
         this.x = 0;
         this.y = 0;
+        this.type = -1;
+        this.price = 0;
     }
 
     // creates connection between this field and another field
@@ -57,6 +66,26 @@ public class Field
         return this.id;
     }
 
+    public void setType(int type)
+    {
+        this.type = type;
+    }
+
+    public int getType()
+    {
+        return this.type;
+    }
+
+    public void setPrice(int price)
+    {
+        this.price = price;
+    }
+
+    public int getPrice()
+    {
+        return this.price;
+    }
+
     public int getX()
     {
         return this.x;
@@ -84,5 +113,13 @@ public class Field
         g.setColor(outline);
         g.drawRect(this.x, this.y, size, size);
         g.drawString(this.id+"", this.x, this.y);
+        if(type == BANK)
+            g.drawString("BANK", this.x+5, this.y+25);
+        else if(type == SHOP)
+            g.drawString(this.price+"", this.x+5, this.y+25);
+        else if(type == VISIT)
+            g.drawString("VISIT", this.x+5, this.y+25);
+        else if(type == EVENT)
+            g.drawString("EVENT", this.x+1, this.y+25);
     }
 }
