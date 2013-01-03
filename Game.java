@@ -17,6 +17,10 @@ public class Game
     private static int ROLL = 0;
     private static int MOVE = 1;
     private static int CHOICE = 2;
+    private static int SHOPPING = 3;
+
+    private static int YES = 1;
+    private static int NO = 2;
 
     private int WIDTH, HEIGHT;
 
@@ -46,7 +50,7 @@ public class Game
         pieces.add(new Piece());
         pieces.get(2).setColor(Color.GREEN);
         pieces.add(new Piece());
-        pieces.get(3).setColor(Color.YELLOW);
+        pieces.get(3).setColor(Color.ORANGE);
 
         board.addField(); // 0
         board.addField(); // 1
@@ -99,6 +103,7 @@ public class Game
         board.getFieldById(3).setType(Field.SHOP);
         board.getFieldById(3).setPrice(210);
         board.getFieldById(4).setType(Field.VISIT);
+        board.getFieldById(4).setPrice(0);
         board.getFieldById(5).setType(Field.SHOP);
         board.getFieldById(5).setPrice(150);
         board.getFieldById(6).setType(Field.SHOP);
@@ -110,6 +115,7 @@ public class Game
         board.getFieldById(9).setType(Field.SHOP);
         board.getFieldById(9).setPrice(190);
         board.getFieldById(10).setType(Field.VISIT);
+        board.getFieldById(10).setPrice(1);
         board.getFieldById(11).setType(Field.SHOP);
         board.getFieldById(11).setPrice(250);
         board.getFieldById(12).setType(Field.SHOP);
@@ -126,6 +132,7 @@ public class Game
         board.getFieldById(18).setType(Field.SHOP);
         board.getFieldById(18).setPrice(210);
         board.getFieldById(19).setType(Field.VISIT);
+        board.getFieldById(19).setPrice(2);
         board.getFieldById(20).setType(Field.SHOP);
         board.getFieldById(20).setPrice(370);
         board.getFieldById(21).setType(Field.EVENT);
@@ -138,17 +145,19 @@ public class Game
         board.getFieldById(25).setType(Field.SHOP);
         board.getFieldById(25).setPrice(70);
         board.getFieldById(26).setType(Field.VISIT);
+        board.getFieldById(26).setPrice(3);
         board.getFieldById(27).setType(Field.SHOP);
         board.getFieldById(27).setPrice(180);
         board.getFieldById(28).setType(Field.SHOP);
         board.getFieldById(28).setPrice(270);
         board.getFieldById(29).setType(Field.SHOP);
         board.getFieldById(29).setPrice(380);
-        board.getFieldById(30).setType(Field.VISIT);
-        board.getFieldById(31).setType(Field.SHOP);
-        board.getFieldById(31).setPrice(130);
+        board.getFieldById(30).setType(Field.SHOP);
+        board.getFieldById(30).setPrice(130);
+        board.getFieldById(31).setType(Field.VISIT);
+        board.getFieldById(31).setPrice(4);
         board.getFieldById(32).setType(Field.SHOP);
-        board.getFieldById(32).setPrice(110);
+        board.getFieldById(32).setPrice(500);
         board.getFieldById(33).setType(Field.EVENT);
         board.getFieldById(34).setType(Field.SHOP);
         board.getFieldById(34).setPrice(390);
@@ -157,6 +166,7 @@ public class Game
         board.getFieldById(36).setType(Field.SHOP);
         board.getFieldById(36).setPrice(480);
         board.getFieldById(37).setType(Field.VISIT);
+        board.getFieldById(37).setPrice(5);
         board.getFieldById(38).setType(Field.SHOP);
         board.getFieldById(38).setPrice(180);
         board.getFieldById(39).setType(Field.SHOP);
@@ -166,7 +176,7 @@ public class Game
         board.getFieldById(41).setType(Field.SHOP);
         board.getFieldById(41).setPrice(480);
 
-        board.getFieldById(0).setX(45);
+        board.getFieldById(0).setX(15);
         board.getFieldById(0).setY(135);
 
         board.connect(0, 1, Board.TOP_RIGHT);
@@ -233,10 +243,12 @@ public class Game
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, WIDTH, HEIGHT);
 
-        board.draw(g);
+        board.drawFields(g);
 
         for(int i = 0; i < pieces.size(); i++)
-            board.draw(g, pieces.get(i), i);
+            board.drawPiece(g, pieces.get(i), i);
+
+        board.drawInfo(g);
 
         board.drawDice(g, dice);
 
@@ -250,31 +262,72 @@ public class Game
                     temp++;
                     g.setColor(Color.YELLOW);
                     if(pieces.get(current_player).getField().getField(i).getType() == Field.BANK)
-                        g.drawString(temp+") BANK", 550, 350 + temp*10);
+                        g.drawString(temp+") BANK", 520, 350 + temp*10);
                     else if(pieces.get(current_player).getField().getField(i).getType() == Field.SHOP)
-                        g.drawString(temp+") "+pieces.get(current_player).getField().getField(i).getPrice(), 550, 350 + temp*10);
+                    {
+                        if(pieces.get(current_player).getField().getField(i).isOwned())
+                            g.drawString(temp+") "+pieces.get(current_player).getField().getField(i).getTax(), 520, 350 + temp*10);
+                        else
+                            g.drawString(temp+") "+pieces.get(current_player).getField().getField(i).getPrice(), 520, 350 + temp*10);
+                    }
                     else if(pieces.get(current_player).getField().getField(i).getType() == Field.VISIT)
-                        g.drawString(temp+") VISIT", 550, 350 + temp*10);
+                        g.drawString(temp+") VISIT", 520, 350 + temp*10);
                     else if(pieces.get(current_player).getField().getField(i).getType() == Field.EVENT)
-                        g.drawString(temp+") EVENT", 550, 350 + temp*10);
+                        g.drawString(temp+") EVENT", 520, 350 + temp*10);
                 }
             }
         }
 
-        g.setColor(Color.BLUE);
-        g.fillRect(570, 250, 10, 10);
-        g.setColor(Color.RED);
-        g.fillRect(570, 265, 10, 10);
-        g.setColor(Color.GREEN);
-        g.fillRect(570, 280, 10, 10);
-        g.setColor(Color.YELLOW);
-        g.fillRect(570, 295, 10, 10);
         g.setColor(Color.GRAY);
-        g.fillPolygon(new int[]{555, 565, 555}, new int[]{(250+current_player*15), (255+current_player*15), (260+current_player*15)}, 3);
+        g.fillPolygon(new int[]{505, 515, 505}, new int[]{(250+current_player*25), (255+current_player*25), (260+current_player*25)}, 3);
+        for(int i = 0; i < pieces.size(); i++)
+        {
+            g.setColor(pieces.get(i).getColor());
+            g.fillRect(520, 250+i*25, 10, 10);
+            g.setColor(Color.WHITE);
+            g.drawString("Wallet: "+pieces.get(i).getWallet(), 520, 270+i*25);
+            for(int j = 0 ; j < 6; j++)
+            {
+                if(pieces.get(i).getVisited(j))
+                    g.drawOval(535+j*15, 250+i*25, 10, 10);
+            }
+        }
+
+        if(step == SHOPPING)
+        {
+            if(pieces.get(current_player).getField().isOwned())
+            {
+                g.drawString("Buy for "+pieces.get(current_player).getField().getBuyoutPrice()+"? Y/N", 520, 200);
+                g.drawString("Tax is: "+pieces.get(current_player).getField().getTax(), 520, 220);
+            }
+            else
+                g.drawString("Buy for "+pieces.get(current_player).getField().getPrice()+"? Y/N", 520, 200);
+        }
     }
 
     public void update()
     {
+        if(current_player != 0)
+        {
+            if(step == ROLL)
+            {
+                step = MOVE;
+                dice = board.roll();
+            }
+            else if(step == CHOICE)
+            {
+                if(pieces.get(current_player).getLastId() == -1)
+                    choice = board.getRandom(1, pieces.get(current_player).getField().getFieldSize());
+                else
+                    choice = board.getRandom(1, pieces.get(current_player).getField().getFieldSize()-1);
+                step = MOVE;
+            }
+            else if(step == SHOPPING)
+            {
+                choice = board.getRandom(1, 2);
+            }
+        }
+
         if(step == MOVE)
         {
             if(pieces.get(current_player).getField().getFieldSize() > 2 || pieces.get(current_player).getLastId() == -1)
@@ -290,14 +343,12 @@ public class Game
                         if(choice == (i+1))
                         {
                             pieces.get(current_player).setField(pieces.get(current_player).getField().getField(i));
-                            dice--;
-                            if(dice == 0)
+                            if(pieces.get(current_player).getField().getType() == Field.BANK)
                             {
-                                step = ROLL;
-                                current_player++;
-                                if(current_player > 3)
-                                    current_player = 0;
+                                if(pieces.get(current_player).allVisited())
+                                    pieces.get(current_player).bank();
                             }
+                            dice--;
                             break;
                         }
                     }
@@ -318,18 +369,66 @@ public class Game
                         if(pieces.get(current_player).getField().getField(i).getId() != pieces.get(current_player).getLastId())
                         {
                             pieces.get(current_player).setField(pieces.get(current_player).getField().getField(i));
-                            dice--;
-                            if(dice == 0)
+                            if(pieces.get(current_player).getField().getType() == Field.BANK)
                             {
-                                step = ROLL;
-                                current_player++;
-                                if(current_player > 3)
-                                    current_player = 0;
+                                if(pieces.get(current_player).allVisited())
+                                    pieces.get(current_player).bank();
                             }
+                            dice--;
                             break;
                         }
                     }
                 }
+            }
+            if(pieces.get(current_player).getField().getType() == Field.VISIT)
+                pieces.get(current_player).setVisited(pieces.get(current_player).getField().getPrice());
+            if(dice == 0)
+            {
+                if(pieces.get(current_player).getField().getType() == Field.SHOP)
+                    step = SHOPPING;
+                else
+                {
+                    step = ROLL;
+                    current_player++;
+                    if(current_player > 3)
+                        current_player = 0;
+                }
+            }
+        }
+        else if(step == SHOPPING)
+        {
+            if(choice == YES)
+            {
+                if(pieces.get(current_player).getField().isOwned())
+                {
+                    for(int i = 0; i < pieces.size(); i++)
+                        if(pieces.get(current_player).getField().getColor() == pieces.get(i).getColor())
+                            pieces.get(i).addMoney(pieces.get(current_player).getField().getBuyoutPrice());
+                    pieces.get(current_player).addMoney(-pieces.get(current_player).getField().getBuyoutPrice());
+                }
+                else
+                    pieces.get(current_player).addMoney(-pieces.get(current_player).getField().getPrice());
+                pieces.get(current_player).addShop(pieces.get(current_player).getField());
+                choice = 0;
+                step = ROLL;
+            }
+            else if(choice == NO)
+            {
+                if(pieces.get(current_player).getField().isOwned())
+                {
+                    for(int i = 0; i < pieces.size(); i++)
+                        if(pieces.get(current_player).getField().getColor() == pieces.get(i).getColor())
+                            pieces.get(i).addMoney(pieces.get(current_player).getField().getTax());
+                    pieces.get(current_player).addMoney(-pieces.get(current_player).getField().getTax());
+                }
+                choice = 0;
+                step = ROLL;
+            }
+            if(step == ROLL)
+            {
+                current_player++;
+                if(current_player > 3)
+                    current_player = 0;
             }
         }
     }
@@ -344,13 +443,25 @@ public class Game
                 dice = board.roll();
             }
         }
-        if(step == CHOICE)
+        else if(step == CHOICE)
         {
             int number = e.getKeyCode();
             if(number >= KeyEvent.VK_1 && number <= KeyEvent.VK_4)
             {
                 choice = number - KeyEvent.VK_0;
                 step = MOVE;
+            }
+        }
+        else if(step == SHOPPING)
+        {
+            int number = e.getKeyCode();
+            if(number == KeyEvent.VK_Y)
+            {
+                choice = YES;
+            }
+            else if(number == KeyEvent.VK_N)
+            {
+                choice = NO;
             }
         }
     }
