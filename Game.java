@@ -285,18 +285,19 @@ public class Game
         }
 
         g.setColor(Color.GRAY);
-        g.fillPolygon(new int[]{505, 515, 505}, new int[]{(250+current_player*25), (255+current_player*25), (260+current_player*25)}, 3);
+        g.fillPolygon(new int[]{505, 515, 505}, new int[]{(210+current_player*35), (215+current_player*35), (220+current_player*35)}, 3);
         for(int i = 0; i < pieces.size(); i++)
         {
             g.setColor(pieces.get(i).getColor());
-            g.fillRect(520, 250+i*25, 10, 10);
+            g.fillRect(520, 210+i*35, 10, 10);
             g.setColor(Color.WHITE);
-            g.drawString("Wallet: "+pieces.get(i).getWallet(), 520, 270+i*25);
+            g.drawString("Wallet: "+pieces.get(i).getWallet(), 520, 230+i*35);
+            g.drawString("Net: "+pieces.get(i).getNetWorth(), 520, 240+i*35);
             for(int j = 0 ; j < pieces.get(i).getVisitedSize(); j++)
             {
                 if(pieces.get(i).getVisited(j))
                 {
-                    g.drawOval(535+j*15, 250+i*25, 10, 10);
+                    g.drawOval(535+j*15, 210+i*35, 10, 10);
                 }
             }
         }
@@ -307,44 +308,57 @@ public class Game
             {
                 if(pieces.get(current_player).getField().getColor() == pieces.get(current_player).getColor())
                 {
-                    g.drawString("Invest "+investment+"?", 520, 200);
+                    g.drawString("Invest "+investment+"?", 520, 160);
                 }
                 else
                 {
-                    g.drawString("Buy for "+pieces.get(current_player).getField().getBuyoutPrice()+"? Y/N", 520, 200);
-                    g.drawString("Tax is: "+pieces.get(current_player).getField().getTax(), 520, 220);
+                    g.drawString("Buy for "+pieces.get(current_player).getField().getBuyoutPrice()+"? Y/N", 520, 160);
+                    g.drawString("Tax is: "+pieces.get(current_player).getField().getTax(), 520, 180);
                 }
             }
             else
-                g.drawString("Buy for "+pieces.get(current_player).getField().getPrice()+"? Y/N", 520, 200);
+                g.drawString("Buy for "+pieces.get(current_player).getField().getPrice()+"? Y/N", 520, 160);
         }
     }
 
     public void update()
     {
-        if(current_player != -1)
+        if(current_player != 0)
         {
             if(step == ROLL)
             {
-                step = MOVE;
-                dice = board.roll();
+                if(pieces.get(current_player).getWallet() < 0)
+                {
+                    if(pieces.get(current_player).shopsOwned() > 0)
+                    {
+                        Engine.repo(pieces.get(current_player));
+
+                        step = MOVE;
+                        dice = board.roll();
+                    }
+                    else
+                    {
+                        current_player++;
+                        if(current_player > 3)
+                            current_player = 0;
+                    }
+                }
+                else
+                {
+                    step = MOVE;
+                    dice = board.roll();
+                }
             }
             else if(step == CHOICE)
             {
                 choice = Engine.move_direction(pieces.get(current_player), board);
-                /*
-                if(pieces.get(current_player).getLastId() == -1)
-                    choice = board.getRandom(1, pieces.get(current_player).getField().getFieldSize());
-                else
-                    choice = board.getRandom(1, pieces.get(current_player).getField().getFieldSize()-1);
-                */
                 step = MOVE;
             }
             else if(step == SHOPPING)
             {
                 if(pieces.get(current_player).getField().getColor() == pieces.get(current_player).getColor())
                 {
-                    pieces.get(current_player).getField().incrementInvestment(Math.round(pieces.get(current_player).getWallet()/3));
+                    pieces.get(current_player).getField().addInvestment(Math.round(pieces.get(current_player).getWallet()/3));
                     pieces.get(current_player).addMoney(-Math.round(pieces.get(current_player).getWallet()/3));
                     step = ROLL;
                     current_player++;
@@ -353,7 +367,6 @@ public class Game
                 }
                 else
                 choice = Engine.buy_decision(pieces.get(current_player));
-                //choice = board.getRandom(1, 2);
             }
         }
 
@@ -430,37 +443,103 @@ public class Game
                 }
             }
         }
+        // PLAYER IS SHOPPING
         else if(step == SHOPPING)
         {
-            if(choice == YES)
+            // IF SHOP IS OWNED
+            if(pieces.get(current_player).getField().isOwned())
             {
-                if(pieces.get(current_player).getField().isOwned())
+                // THE CURRENT PLAYER DOES NOT OWN THE SHOP HE IS STANDING ON
+                if(pieces.get(current_player).getField().getColor() != pieces.get(current_player).getColor())
                 {
-                    for(int i = 0; i < pieces.size(); i++)
-                        if(pieces.get(current_player).getField().getColor() == pieces.get(i).getColor())
-                            pieces.get(i).addMoney(pieces.get(current_player).getField().getBuyoutPrice());
-                    pieces.get(current_player).addMoney(-pieces.get(current_player).getField().getBuyoutPrice());
+                    // IF PLAYER ACTUALLY HAS ANY MONEY LEFT TO BUYOUT
+                    if(pieces.get(current_player).getWallet() >= pieces.get(current_player).getField().getBuyoutPrice())
+                    {
+                        // IF PLAYER CHOOSES TO BUYOUT
+                        if(choice == YES)
+                        {
+                            // GIVE THE PLAYER WHO OWNS THE SHOP MONEY AND REMOVE THE SHOP FROM HIM
+                            for(int i = 0; i < pieces.size(); i++)
+                            {
+                                if(pieces.get(current_player).getField().getColor() == pieces.get(i).getColor())
+                                {
+                                    pieces.get(i).addMoney(pieces.get(current_player).getField().getBuyoutPrice());
+                                    pieces.get(i).removeShop(pieces.get(current_player).getField().getId());
+                                }
+                            }
+                            // REMOVE MONEY FROM BUYING PLAYER AND GIVE HIM THE SHOP
+                            pieces.get(current_player).addMoney(-pieces.get(current_player).getField().getBuyoutPrice());
+                            pieces.get(current_player).addShop(pieces.get(current_player).getField());
+                            // NEXT STEP
+                            choice = 0;
+                            step = ROLL;
+                        }
+                        // IF HE CHOOSES NOT TO BUYOUT
+                        else if(choice == NO)
+                        {
+                            // GIVE THE TAX TO THE OWNING PLAYER
+                            for(int i = 0; i < pieces.size(); i++)
+                                if(pieces.get(current_player).getField().getColor() == pieces.get(i).getColor())
+                                    pieces.get(i).addMoney(pieces.get(current_player).getField().getTax());
+                            // REMOVE THE TAX FROM PAYING PLAYER
+                            pieces.get(current_player).addMoney(-pieces.get(current_player).getField().getTax());
+                            // NEXT STEP
+                            choice = 0;
+                            step = ROLL;
+                        }
+                    }
+                    // PLAYER HAS NO MONEY LEFT TO BUYOUT, SO HE WILL HAVE TO PAY THE TAX
+                    else
+                    {
+                        // GIVE THE TAX TO PLAYER WHO OWNS THE SHOP
+                        for(int i = 0; i < pieces.size(); i++)
+                            if(pieces.get(current_player).getField().getColor() == pieces.get(i).getColor())
+                                pieces.get(i).addMoney(pieces.get(current_player).getField().getTax());
+                        // REMOVE THE TAX FROM PAYING PLAYER
+                        pieces.get(current_player).addMoney(-pieces.get(current_player).getField().getTax());
+                        // NEXT STEP
+                        choice = 0;
+                        step = ROLL;
+                    }
                 }
+            }
+            // THE SHOP IS NOT OWNED BY ANYONE
+            else
+            {
+                // IF PLAYER HAS MONEY TO BUY
+                if(pieces.get(current_player).getWallet() >= pieces.get(current_player).getField().getPrice())
+                {
+                    // IF PLAYER CHOOSES TO BUY
+                    if(choice == YES)
+                    {
+                        pieces.get(current_player).addMoney(-pieces.get(current_player).getField().getPrice());
+                        pieces.get(current_player).addShop(pieces.get(current_player).getField());
+                        // NEXT STEP
+                        choice = 0;
+                        step = ROLL;
+                    }
+                    // IF HE CHOOSES NOT TO BUY
+                    else if(choice == NO)
+                    {
+                        // NEXT STEP
+                        choice = 0;
+                        step = ROLL;
+                    }
+                }
+                // HE HAS NO MONEY TO BUY
                 else
-                    pieces.get(current_player).addMoney(-pieces.get(current_player).getField().getPrice());
-                pieces.get(current_player).addShop(pieces.get(current_player).getField());
-                choice = 0;
-                step = ROLL;
-            }
-            else if(choice == NO)
-            {
-                if(pieces.get(current_player).getField().isOwned())
                 {
-                    for(int i = 0; i < pieces.size(); i++)
-                        if(pieces.get(current_player).getField().getColor() == pieces.get(i).getColor())
-                            pieces.get(i).addMoney(pieces.get(current_player).getField().getTax());
-                    pieces.get(current_player).addMoney(-pieces.get(current_player).getField().getTax());
+                    // NEXT STEP
+                    choice = 0;
+                    step = ROLL;
                 }
-                choice = 0;
-                step = ROLL;
             }
+
             if(step == ROLL)
             {
+                if(pieces.get(current_player).getWallet() < 0)
+                    Engine.repo(pieces.get(current_player));
+
                 current_player++;
                 if(current_player > 3)
                     current_player = 0;
@@ -492,15 +571,19 @@ public class Game
             if(pieces.get(current_player).getField().getColor() == pieces.get(current_player).getColor())
             {
                 if(number == KeyEvent.VK_UP)
+                {
                     if(investment < pieces.get(current_player).getWallet() || investment < 999)
                         investment++;
+                }
                 else if(number == KeyEvent.VK_DOWN)
+                {
                     if(investment > 1)
                         investment--;
+                }
                 else if(number == KeyEvent.VK_SPACE)
                 {
-                    pieces.get(current_player).getField().incrementInvestment(investment);
-                    pieces.get(current_player).addMoney(investment);
+                    pieces.get(current_player).getField().addInvestment(investment);
+                    pieces.get(current_player).addMoney(-investment);
                     investment = 1;
                     step = ROLL;
                     current_player++;

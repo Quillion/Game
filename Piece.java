@@ -125,6 +125,14 @@ public class Piece
         return this.wallet;
     }
 
+    public int getNetWorth()
+    {
+        int amount = 0;
+        for(int i = 0 ; i < this.shopsOwned(); i++)
+            amount += (this.getShop(i).getPrice() + this.getShop(i).getInvestment());
+        return (amount + this.getWallet());
+    }
+
     /*
      * This piece has visited the bank.
      * If he visited all the neccessary fields then he will money.
@@ -235,5 +243,18 @@ public class Piece
     public int shopsOwned()
     {
         return this.shops.size();
+    }
+
+    /*
+     * Returns owned shop from specified position.
+     * If position is out of bound it returns null;
+     * @param position which shop position to return.
+     * @return field owned by player from list at position specified, or null if out of bounds.
+     */
+    public Field getShop(int position)
+    {
+        if(position >= 0 && position < this.shopsOwned())
+            return this.shops.get(position);
+        return null;
     }
 }

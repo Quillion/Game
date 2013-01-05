@@ -196,7 +196,7 @@ public class Field
      * Investment determines buyout price and tax of the property.
      * @param how much to increment investments by.
      */
-    public void incrementInvestment(int amount)
+    public void addInvestment(int amount)
     {
         this.investment += amount;
     }

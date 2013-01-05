@@ -2,9 +2,21 @@ import java.util.Scanner;
 import java.util.Arrays;
 import java.util.Queue;
 import java.util.LinkedList;
+import java.awt.Color;
 
 public class Engine
 {
+    public static void repo(Piece piece)
+    {
+        while(piece.getWallet() < 0 && piece.shopsOwned() > 0)
+        {
+            piece.addMoney(piece.getShop(piece.shopsOwned()-1).getPrice());
+            piece.getShop(piece.shopsOwned()-1).setColor(Color.GRAY);
+            piece.getShop(piece.shopsOwned()-1).setInvestment(0);
+            piece.removeShop(piece.getShop(piece.shopsOwned()-1).getId());
+        }
+    }
+
     public static int buy_decision(Piece piece)
     {
         if(piece.getField().isOwned())
