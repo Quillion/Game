@@ -104,6 +104,17 @@ public class Board
     }
 
     /*
+     * Returns the List of field which is the whole game board.
+     * Why you would want this function is beyond me.
+     * Anyways enjoy :)
+     * @return the list of fields which represents the whole game board.
+     */
+    public List<Field> getGameBoard()
+    {
+        return this.fields;
+    }
+
+    /*
      * Returns the field that has the id passed.
      * If the id does not exist however, you will receive null in return for the field object.
      * @param id the id of the field you are searching for in the board.

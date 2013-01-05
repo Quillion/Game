@@ -175,7 +175,7 @@ public class Piece
     public void resetVisited()
     {
         for(int i = 0; i < this.getVisitedSize(); i++)
-            this.visited.add(new Boolean(false));
+            this.visited.set(i, new Boolean(false));
     }
 
     /*

@@ -127,12 +127,12 @@ public class Game
         board.getFieldById(15).setPrice(110);
         board.getFieldById(16).setType(Field.SHOP);
         board.getFieldById(16).setPrice(170);
-        board.getFieldById(17).setType(Field.SHOP);
-        board.getFieldById(17).setPrice(100);
+        board.getFieldById(17).setType(Field.VISIT);
+        board.getFieldById(17).setPrice(2);
         board.getFieldById(18).setType(Field.SHOP);
         board.getFieldById(18).setPrice(210);
-        board.getFieldById(19).setType(Field.VISIT);
-        board.getFieldById(19).setPrice(2);
+        board.getFieldById(19).setType(Field.SHOP);
+        board.getFieldById(19).setPrice(100);
         board.getFieldById(20).setType(Field.SHOP);
         board.getFieldById(20).setPrice(370);
         board.getFieldById(21).setType(Field.EVENT);
@@ -152,10 +152,10 @@ public class Game
         board.getFieldById(28).setPrice(270);
         board.getFieldById(29).setType(Field.SHOP);
         board.getFieldById(29).setPrice(380);
-        board.getFieldById(30).setType(Field.SHOP);
-        board.getFieldById(30).setPrice(130);
-        board.getFieldById(31).setType(Field.VISIT);
-        board.getFieldById(31).setPrice(4);
+        board.getFieldById(30).setType(Field.VISIT);
+        board.getFieldById(30).setPrice(4);
+        board.getFieldById(31).setType(Field.SHOP);
+        board.getFieldById(31).setPrice(130);
         board.getFieldById(32).setType(Field.SHOP);
         board.getFieldById(32).setPrice(500);
         board.getFieldById(33).setType(Field.EVENT);
@@ -228,7 +228,10 @@ public class Game
         board.connect(40, 41, Board.TOP);
 
         for(int i = 0; i < pieces.size(); i++)
+        {
             pieces.get(i).setField(board.getFieldById(0));
+            pieces.get(i).setVisitedSize(6);
+        }
 
         current_player = 0;
         timer = 0;
@@ -271,7 +274,7 @@ public class Game
                             g.drawString(temp+") "+pieces.get(current_player).getField().getField(i).getPrice(), 520, 350 + temp*10);
                     }
                     else if(pieces.get(current_player).getField().getField(i).getType() == Field.VISIT)
-                        g.drawString(temp+") VISIT", 520, 350 + temp*10);
+                        g.drawString(temp+") VISIT "+(pieces.get(current_player).getField().getField(i).getPrice()+1), 520, 350 + temp*10);
                     else if(pieces.get(current_player).getField().getField(i).getType() == Field.EVENT)
                         g.drawString(temp+") EVENT", 520, 350 + temp*10);
                 }
@@ -286,10 +289,12 @@ public class Game
             g.fillRect(520, 250+i*25, 10, 10);
             g.setColor(Color.WHITE);
             g.drawString("Wallet: "+pieces.get(i).getWallet(), 520, 270+i*25);
-            for(int j = 0 ; j < 6; j++)
+            for(int j = 0 ; j < pieces.get(i).getVisitedSize(); j++)
             {
                 if(pieces.get(i).getVisited(j))
+                {
                     g.drawOval(535+j*15, 250+i*25, 10, 10);
+                }
             }
         }
 
@@ -307,7 +312,7 @@ public class Game
 
     public void update()
     {
-        if(current_player != 0)
+        if(current_player != -1)
         {
             if(step == ROLL)
             {
@@ -316,15 +321,19 @@ public class Game
             }
             else if(step == CHOICE)
             {
+                choice = Engine.move_direction(pieces.get(current_player), board);
+                /*
                 if(pieces.get(current_player).getLastId() == -1)
                     choice = board.getRandom(1, pieces.get(current_player).getField().getFieldSize());
                 else
                     choice = board.getRandom(1, pieces.get(current_player).getField().getFieldSize()-1);
+                */
                 step = MOVE;
             }
             else if(step == SHOPPING)
             {
-                choice = board.getRandom(1, 2);
+                choice = Engine.buy_decision(pieces.get(current_player));
+                //choice = board.getRandom(1, 2);
             }
         }
 
@@ -346,7 +355,10 @@ public class Game
                             if(pieces.get(current_player).getField().getType() == Field.BANK)
                             {
                                 if(pieces.get(current_player).allVisited())
+                                {
                                     pieces.get(current_player).bank();
+                                    pieces.get(current_player).resetVisited();
+                                }
                             }
                             dice--;
                             break;
@@ -372,7 +384,10 @@ public class Game
                             if(pieces.get(current_player).getField().getType() == Field.BANK)
                             {
                                 if(pieces.get(current_player).allVisited())
+                                {
                                     pieces.get(current_player).bank();
+                                    pieces.get(current_player).resetVisited();
+                                }
                             }
                             dice--;
                             break;

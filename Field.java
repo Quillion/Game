@@ -19,8 +19,8 @@ public class Field
     public static int EVENT = 2;
     public static int VISIT = 3;
 
-    private static int TAX_DIVISOR;
-    private static int BUYOUT_PRICE;
+    private static int TAX_DIVISOR = 10;
+    private static int BUYOUT_PRICE = 5;
 
     // PRIVATE VALUES
     private List<Field> fields;
@@ -29,6 +29,9 @@ public class Field
     private int type;
     private int price;
     private Color color;
+
+    // THIS WILL BE USED AS GARBAGE INT FOR WHATEVER
+    public int garbage;
 
     /*
      * Initializer for the field.
