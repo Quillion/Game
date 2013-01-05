@@ -213,6 +213,7 @@ public class Piece
     {
         this.shops.add(field);
         field.setColor(this.color);
+        field.setInvestment(0);
     }
 
     /*

@@ -20,6 +20,7 @@ public class Field
     public static int VISIT = 3;
 
     private static int TAX_DIVISOR = 10;
+    private static int INVESTMENT_DIVISOR = 5;
     private static int BUYOUT_PRICE = 5;
 
     // PRIVATE VALUES
@@ -28,6 +29,7 @@ public class Field
     private int x, y;
     private int type;
     private int price;
+    private int investment;
     private Color color;
 
     // THIS WILL BE USED AS GARBAGE INT FOR WHATEVER
@@ -45,6 +47,7 @@ public class Field
         this.y = 0;
         this.type = NONE;
         this.price = 0;
+        this.investment = 0;
         this.color = Color.GRAY;
     }
 
@@ -166,7 +169,7 @@ public class Field
      */
     public int getBuyoutPrice()
     {
-        return this.getPrice()*this.BUYOUT_PRICE;
+        return ((this.getPrice()+this.getInvestment())*this.BUYOUT_PRICE);
     }
 
     /*
@@ -175,7 +178,37 @@ public class Field
      */
     public int getTax()
     {
-        return Math.round(this.getPrice()/10);
+        return Math.round(this.getPrice()/this.TAX_DIVISOR)+ Math.round(this.getInvestment()/this.INVESTMENT_DIVISOR);
+    }
+
+    /*
+     * Sets the investment to whatever amount is passed.
+     * Investment determines buyout price and the tax of the property.
+     * @param amount how much to set investment to.
+     */
+    public void setInvestment(int amount)
+    {
+        this.investment = amount;
+    }
+
+    /*
+     * Increments the investment to whatever amount is passed.
+     * Investment determines buyout price and tax of the property.
+     * @param how much to increment investments by.
+     */
+    public void incrementInvestment(int amount)
+    {
+        this.investment += amount;
+    }
+
+    /*
+     * Returns how much is invested in this property.
+     * Not sure why you would even want this function.
+     * @return how much is invested in this field.
+     */
+    public int getInvestment()
+    {
+        return this.investment;
     }
 
     /*
@@ -276,7 +309,15 @@ public class Field
         {
             // IF SHOP IS OWNED
             if(this.isOwned())
-                g.drawString(this.getTax()+"", this.getX()+5, this.getY()+25);
+            {
+                if(this.getInvestment() > 0)
+                {
+                    g.drawString(this.getTax()+"", this.getX()+5, this.getY()+20);
+                    g.drawString(this.getInvestment()+"", this.getX()+5, this.getY()+30);
+                }
+                else
+                    g.drawString(this.getTax()+"", this.getX()+5, this.getY()+25);
+            }
             // SHOP HAS NO OWNER
             else
                 g.drawString(this.getPrice()+"", this.getX()+5, this.getY()+25);

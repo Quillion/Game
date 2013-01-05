@@ -21,6 +21,7 @@ public class Game
 
     private static int YES = 1;
     private static int NO = 2;
+    private static int INVEST = 3;
 
     private int WIDTH, HEIGHT;
 
@@ -31,6 +32,7 @@ public class Game
     private int timer;
     private int dice;
     private int choice;
+    private int investment;
 
     private int step;
 
@@ -237,6 +239,7 @@ public class Game
         timer = 0;
         dice = 0;
         choice = 0;
+        investment = 1;
         step = ROLL;
         temp = 0;
     }
@@ -302,8 +305,15 @@ public class Game
         {
             if(pieces.get(current_player).getField().isOwned())
             {
-                g.drawString("Buy for "+pieces.get(current_player).getField().getBuyoutPrice()+"? Y/N", 520, 200);
-                g.drawString("Tax is: "+pieces.get(current_player).getField().getTax(), 520, 220);
+                if(pieces.get(current_player).getField().getColor() == pieces.get(current_player).getColor())
+                {
+                    g.drawString("Invest "+investment+"?", 520, 200);
+                }
+                else
+                {
+                    g.drawString("Buy for "+pieces.get(current_player).getField().getBuyoutPrice()+"? Y/N", 520, 200);
+                    g.drawString("Tax is: "+pieces.get(current_player).getField().getTax(), 520, 220);
+                }
             }
             else
                 g.drawString("Buy for "+pieces.get(current_player).getField().getPrice()+"? Y/N", 520, 200);
@@ -332,6 +342,16 @@ public class Game
             }
             else if(step == SHOPPING)
             {
+                if(pieces.get(current_player).getField().getColor() == pieces.get(current_player).getColor())
+                {
+                    pieces.get(current_player).getField().incrementInvestment(Math.round(pieces.get(current_player).getWallet()/3));
+                    pieces.get(current_player).addMoney(-Math.round(pieces.get(current_player).getWallet()/3));
+                    step = ROLL;
+                    current_player++;
+                    if(current_player > 3)
+                        current_player = 0;
+                }
+                else
                 choice = Engine.buy_decision(pieces.get(current_player));
                 //choice = board.getRandom(1, 2);
             }
@@ -450,9 +470,10 @@ public class Game
 
     public void keyPressed(KeyEvent e)
     {
+        int number = e.getKeyCode();
         if(step == ROLL)
         {
-            if(e.getKeyCode() == KeyEvent.VK_SPACE)
+            if(number == KeyEvent.VK_SPACE)
             {
                 step = MOVE;
                 dice = board.roll();
@@ -460,7 +481,6 @@ public class Game
         }
         else if(step == CHOICE)
         {
-            int number = e.getKeyCode();
             if(number >= KeyEvent.VK_1 && number <= KeyEvent.VK_4)
             {
                 choice = number - KeyEvent.VK_0;
@@ -469,14 +489,35 @@ public class Game
         }
         else if(step == SHOPPING)
         {
-            int number = e.getKeyCode();
-            if(number == KeyEvent.VK_Y)
+            if(pieces.get(current_player).getField().getColor() == pieces.get(current_player).getColor())
             {
-                choice = YES;
+                if(number == KeyEvent.VK_UP)
+                    if(investment < pieces.get(current_player).getWallet() || investment < 999)
+                        investment++;
+                else if(number == KeyEvent.VK_DOWN)
+                    if(investment > 1)
+                        investment--;
+                else if(number == KeyEvent.VK_SPACE)
+                {
+                    pieces.get(current_player).getField().incrementInvestment(investment);
+                    pieces.get(current_player).addMoney(investment);
+                    investment = 1;
+                    step = ROLL;
+                    current_player++;
+                    if(current_player > 3)
+                        current_player = 0;
+                }
             }
-            else if(number == KeyEvent.VK_N)
+            else
             {
-                choice = NO;
+                if(number == KeyEvent.VK_Y)
+                {
+                    choice = YES;
+                }
+                else if(number == KeyEvent.VK_N)
+                {
+                    choice = NO;
+                }
             }
         }
     }
