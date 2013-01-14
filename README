@@ -1,3 +1,19 @@
 Basic is complete.
 Space bar is roll the dice.
 When you want to invest press up and down arrow keys for invest amount and spacebar to confirm.
+
+Field is a single field on the board.
+It can be of 4 types: Bank, Event, Visit and Shop.
+More types will be added in the future.
+Main thing used to distinguish Fields are their ids.
+Ids of fields are assigned and managed by the Board.
+
+Piece, is a single piece on the board.
+It holds properties such as last field visited (to prevent moving back),
+how much money he is carrying, and how many stores he owns.
+
+Board is like a master controller that holds all the boards
+and is one of the main ways to communicate with fields and change their values.
+
+Engine is used for decision making for AI.
+Currently there is only one type of AI, but I will add more AI in the future.

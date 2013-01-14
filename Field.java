@@ -20,7 +20,7 @@ public class Field
     public static int VISIT = 3;
 
     private static int TAX_DIVISOR = 10;
-    private static int INVESTMENT_DIVISOR = 5;
+    private static int INVESTMENT_DIVISOR = 10;
     private static int BUYOUT_PRICE = 5;
 
     // PRIVATE VALUES
@@ -178,7 +178,11 @@ public class Field
      */
     public int getTax()
     {
-        return Math.round(this.getPrice()/this.TAX_DIVISOR)+ Math.round(this.getInvestment()/this.INVESTMENT_DIVISOR);
+        int tax = Math.round(this.getPrice()/this.TAX_DIVISOR)+ Math.round(this.getInvestment()/Math.round((100 - Math.round(this.getPrice()/this.TAX_DIVISOR))/this.INVESTMENT_DIVISOR));
+        for(int i = 0; i < this.getFieldSize(); i++)
+            if(this.getColor() == this.getField(i).getColor())
+                tax *= 2;
+        return tax;
     }
 
     /*
