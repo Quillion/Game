@@ -436,6 +436,11 @@ public class Game
                     step = SHOPPING;
                 else
                 {
+                    if(step != ROLL)
+                    {
+                        if(pieces.get(current_player).getField().getType() == Field.VISIT)
+                            pieces.get(current_player).addMoney(100);
+                    }
                     step = ROLL;
                     current_player++;
                     if(current_player > 3)
