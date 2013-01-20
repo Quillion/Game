@@ -440,6 +440,10 @@ public class Game
                     {
                         if(pieces.get(current_player).getField().getType() == Field.VISIT)
                             pieces.get(current_player).addMoney(100);
+                        else if(pieces.get(current_player).getField().getType() == Field.EVENT)
+                        {
+                            Engine.event(pieces.get(current_player), board);
+                        }
                     }
                     step = ROLL;
                     current_player++;

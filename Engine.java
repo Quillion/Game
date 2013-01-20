@@ -140,6 +140,45 @@ public class Engine
         return answer;
     }
 
+    public static void event(Piece piece, Board board)
+    {
+        int event = board.getRandom(1, 19);
+        // GET PAID event * 100
+        if(event > 0 && event < 6)
+        {
+            piece.addMoney(event*100);
+        }
+        // TELEPORT
+        else if(event == 7)
+        {
+            event = board.getRandom(0, board.getBoardSize()-1);
+            piece.setField(board.getField(event));
+            piece.setLastId(-1);
+        }
+        // GET PAID BASED ON WALLET
+        else if(event > 7 && event < 13)
+        {
+            event = Math.round(piece.getWallet()*((event-7)/10));
+            piece.addMoney(event);
+        }
+        // LOSE ONE SHOP
+        else if(event == 13)
+        {
+            piece.removeShop(piece.getShop(piece.shopsOwned()-1).getId());
+        }
+        // LOSE MONEY BASED ON WALLET
+        else if(event > 13 && event < 19)
+        {
+            event = Math.round(piece.getWallet()*((event-13)/10));
+            piece.addMoney(-event);
+        }
+        // GIVE 7777
+        else if(event == 19)
+        {
+            piece.addMoney(7777);
+        }
+    }
+
     public static void movePiece(Board board, Piece piece, int amount)
     {
         Scanner in = new Scanner(System.in);
